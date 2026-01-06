@@ -1,4 +1,4 @@
-package controller;
+package com.ftn.SEP.ShopApp.controller;
 import dto.CallbackRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

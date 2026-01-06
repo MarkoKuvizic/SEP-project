@@ -1,4 +1,4 @@
-package service;
+package com.ftn.SEP.ShopApp.service;
 
 import dto.InitTransactionRequest;
 import dto.InitTransactionResponse;

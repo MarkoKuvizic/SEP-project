@@ -1,0 +1,308 @@
+<div class="container-fluid py-5 mt-5 bg-light min-vh-100">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="row mb-5">
+        <div class="col">
+          <h1 class="display-5 fw-bold">Shopping Cart</h1>
+          <p class="text-muted">Review your selected vehicles and rental details</p>
+        </div>
+        <div class="col-auto d-flex align-items-center">
+          <button class="btn btn-outline-primary" (click)="continueShopping()">
+            <fa-icon [icon]="faArrowLeft" class="me-2"></fa-icon>
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+  
+      <!-- Cart Content -->
+      <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+          <!-- Empty Cart State -->
+          <div *ngIf="cartItems.length === 0" class="card shadow border-0">
+            <div class="card-body text-center py-5">
+              <div class="display-1 text-muted mb-3">🛒</div>
+              <h3 class="mb-3">Your cart is empty</h3>
+              <p class="text-muted mb-4">Add some amazing cars to your cart and start your journey!</p>
+              <button class="btn btn-primary btn-lg" (click)="continueShopping()">
+                Browse Cars
+              </button>
+            </div>
+          </div>
+  
+          <!-- Cart Items List -->
+          <div *ngFor="let item of cartItems" class="card shadow border-0 mb-4">
+            <div class="card-body">
+              <div class="row">
+                <!-- Car Image -->
+                <div class="col-md-3">
+                  <img [src]="item.car.imageUrl" 
+                       [alt]="item.car.model"
+                       class="img-fluid rounded-3">
+                </div>
+                
+                <!-- Car Details -->
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h4 class="fw-bold mb-1">{{ item.car.brand }} {{ item.car.model }}</h4>
+                      <p class="text-muted mb-2">{{ item.car.type | titlecase }} • {{ item.car.year }}</p>
+                      <div class="d-flex align-items-center text-warning mb-3">
+                        <fa-icon [icon]="faStar" *ngFor="let _ of [1,2,3,4,5]"></fa-icon>
+                        <span class="ms-2">{{ item.car.rating }} ({{ item.car.reviewCount }})</span>
+                      </div>
+                    </div>
+                    <h4 class="text-primary fw-bold">
+                      {{ formatPrice(item.car.dailyRate) }}<small class="text-muted">/day</small>
+                    </h4>
+                  </div>
+  
+                  <!-- Rental Dates -->
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                      <div class="p-3 bg-light rounded-3">
+                        <fa-icon [icon]="faCalendar" class="text-primary me-2"></fa-icon>
+                        <span class="fw-bold">Pick-up:</span>
+                        <div class="mt-1">{{ formatDate(item.rentalFrom) }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="p-3 bg-light rounded-3">
+                        <fa-icon [icon]="faCalendar" class="text-primary me-2"></fa-icon>
+                        <span class="fw-bold">Return:</span>
+                        <div class="mt-1">{{ formatDate(item.rentalTo) }}</div>
+                      </div>
+                    </div>
+                  </div>
+  
+                  <!-- Update Dates Form -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Update Rental Period</h6>
+                    <form [formGroup]="dateForm" class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label">New Pick-up Date</label>
+                        <input type="date" class="form-control" formControlName="startDate">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">New Return Date</label>
+                        <input type="date" class="form-control" formControlName="endDate">
+                      </div>
+                      <div class="col-12">
+                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                (click)="updateDates()">
+                          Update Dates
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+  
+                  <!-- Insurance Options -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <fa-icon [icon]="faShieldAlt" class="text-primary me-2"></fa-icon>
+                      Insurance Coverage
+                    </h6>
+                    <div class="row g-2">
+                      <div class="col-md-4" *ngFor="let insurance of insuranceOptions">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" 
+                                 [name]="'insurance-' + item.car.id"
+                                 [id]="'insurance-' + insurance.id"
+                                 [value]="insurance.id"
+                                 [checked]="item.insurance.id === insurance.id"
+                                 (change)="updateInsurance(item, insurance.id)">
+                          <label class="form-check-label" [for]="'insurance-' + insurance.id">
+                            {{ insurance.name }}
+                            <small class="d-block text-muted">{{ formatPrice(insurance.dailyRate) }}/day</small>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+  
+                  <!-- Extra Options -->
+                  <div *ngIf="extraOptions.length" class="mb-3">
+                    <h6 class="fw-bold mb-3">
+                      <fa-icon [icon]="faCog" class="text-primary me-2"></fa-icon>
+                      Add Extras
+                    </h6>
+                    <div class="row g-2">
+                      <div class="col-md-4" *ngFor="let extra of extraOptions">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" 
+                                 [id]="'extra-' + extra.id"
+                                 [checked]="isExtraSelected(item, extra.id)"
+                                 (change)="toggleExtra(item, extra.id)">
+                          <label class="form-check-label" [for]="'extra-' + extra.id">
+                            {{ extra.name }}
+                            <small class="d-block text-muted">+{{ formatPrice(extra.price) }}</small>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Price & Actions -->
+                <div class="col-md-3">
+                  <div class="text-end">
+                    <button class="btn btn-link text-danger mb-3" 
+                            (click)="removeItem(item.car.id)">
+                      <fa-icon [icon]="faTrash" class="me-1"></fa-icon>
+                      Remove
+                    </button>
+                  </div>
+                  
+                  <div class="border-top pt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Daily Rate</span>
+                      <span class="fw-bold">{{ formatPrice(item.car.dailyRate) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Rental Days</span>
+                      <span class="fw-bold">{{ calculateDays(item.rentalFrom, item.rentalTo) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Insurance</span>
+                      <span class="fw-bold">$0/day</span>
+                    </div>
+                    <div *ngIf="getExtrasTotal(item) > 0" class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Extras</span>
+                      <span class="fw-bold">{{ formatPrice(getExtrasTotal(item)) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                      <span class="fw-bold">Item Total</span>
+                      <span class="fw-bold fs-5 text-primary">{{ formatPrice(getItemTotal(item)) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Promo Code -->
+          <div class="card shadow border-0 mb-4">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">
+                <fa-icon [icon]="faTags" class="text-primary me-2"></fa-icon>
+                Promo Code
+              </h6>
+              <div class="input-group">
+                <input type="text" class="form-control" 
+                       placeholder="Enter promo code"
+                       [(ngModel)]="promoCode">
+                <button class="btn btn-primary" 
+                        type="button"
+                        (click)="applyPromoCode()"
+                        [disabled]="!promoCode.trim()">
+                  Apply
+                </button>
+              </div>
+              <small class="text-muted mt-2 d-block">
+                Try: WELCOME10 (10% off) • SUMMER20 (20% off) • FIRST25 (25% off)
+              </small>
+            </div>
+          </div>
+  
+          <!-- Clear Cart Button -->
+          <div class="text-end mb-4">
+            <button class="btn btn-outline-danger" 
+                    (click)="clearCart()"
+                    [disabled]="cartItems.length === 0">
+              <fa-icon [icon]="faTrash" class="me-2"></fa-icon>
+              Clear Cart
+            </button>
+          </div>
+        </div>
+  
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+          <div class="card shadow border-0 sticky-top" style="top: 100px;">
+            <div class="card-header bg-white py-4">
+              <h3 class="card-title mb-0">Order Summary</h3>
+            </div>
+            
+            <div class="card-body">
+              <!-- Subtotal -->
+              <div class="d-flex justify-content-between mb-3">
+                <span>Subtotal</span>
+                <span class="fw-bold">{{ formatPrice(getSubtotal()) }}</span>
+              </div>
+              
+              <!-- Tax -->
+              <div class="d-flex justify-content-between mb-3">
+                <span>Tax (8%)</span>
+                <span class="fw-bold">{{ formatPrice(getTax()) }}</span>
+              </div>
+              
+              <!-- Discount -->
+              <div *ngIf="discount > 0" class="d-flex justify-content-between mb-3 text-success">
+                <span>Discount ({{ discountPercentage }}%)</span>
+                <span class="fw-bold">-{{ formatPrice(discount) }}</span>
+              </div>
+              
+              <!-- Total -->
+              <div class="d-flex justify-content-between mt-4 pt-4 border-top">
+                <span class="fs-5 fw-bold">Total</span>
+                <span class="fs-4 fw-bold text-primary">{{ formatPrice(getGrandTotal()) }}</span>
+              </div>
+              
+              <!-- Estimated Total Display -->
+              <div class="mt-4 p-3 bg-light rounded-3">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Estimated Total</span>
+                  <span class="fs-5 fw-bold">{{ formatPrice(getGrandTotal()) }}</span>
+                </div>
+                <small class="text-muted d-block">
+                  Includes taxes and fees. Final amount may vary.
+                </small>
+              </div>
+              
+              <!-- Checkout Button -->
+              <button class="btn btn-primary btn-lg w-100 mt-4 py-3"
+                      (click)="proceedToCheckout()"
+                      [disabled]="cartItems.length === 0">
+                <fa-icon [icon]="faCreditCard" class="me-2"></fa-icon>
+                Proceed to Checkout
+              </button>
+              
+              <!-- Additional Info -->
+              <div class="mt-4">
+                <div class="d-flex align-items-center mb-2">
+                  <fa-icon [icon]="faShieldAlt" class="text-success me-2"></fa-icon>
+                  <small class="text-muted">Secure payment • SSL encrypted</small>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                  <fa-icon [icon]="faCalendar" class="text-success me-2"></fa-icon>
+                  <small class="text-muted">Free cancellation up to 24 hours before pickup</small>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Need Help -->
+          <div class="card shadow border-0 mt-4">
+            <div class="card-body text-center">
+              <h6 class="fw-bold mb-3">Need Help?</h6>
+              <p class="text-muted small mb-3">
+                Our support team is here to help you with your booking.
+              </p>
+              <a href="tel:1-800-DRIVE-RENT" class="btn btn-outline-primary btn-sm">
+                📞 1-800-DRIVE-RENT
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Recently Viewed / Recommendations (Optional) -->
+      <div class="row mt-5" *ngIf="cartItems.length > 0">
+        <div class="col">
+          <h4 class="fw-bold mb-4">You might also like</h4>
+          <div class="row g-4">
+            <!-- Add car recommendations here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

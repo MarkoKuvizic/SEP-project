@@ -1,0 +1,55 @@
+.stepper {
+    gap: 0.5rem;
+  }
+  
+  .step {
+    text-align: center;
+    flex: 0 0 auto;
+    color: #adb5bd;
+  }
+  
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    margin: 0 auto 0.25rem;
+  }
+  
+  .step small {
+    font-size: 0.75rem;
+  }
+  
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: #dee2e6;
+    margin: 0 0.25rem;
+  }
+  
+  .step.completed .step-icon {
+    background: #198754;
+    color: #fff;
+  }
+  
+  .step.completed {
+    color: #198754;
+  }
+  
+  .step-line.completed {
+    background: #198754;
+  }
+  
+  .step.active .step-icon {
+    background: #0d6efd;
+    color: #fff;
+  }
+  
+  .step.active {
+    color: #0d6efd;
+  }
+  
