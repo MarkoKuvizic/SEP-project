@@ -1,18 +1,22 @@
-package service;
+package com.ftn.SEP.PaymentApp.service;
 
 import domain.PaymentMethod;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class PaymentMethodRegistry {
+
     private final Map<String, PaymentMethod> paymentMethods = new ConcurrentHashMap<>();
 
-    public void register(PaymentMethod paymentMethod) {
-        paymentMethods.put(paymentMethod.getCode(), paymentMethod);
+    public PaymentMethodRegistry(List<PaymentMethod> methods) {
+        for (PaymentMethod method : methods) {
+            paymentMethods.put(method.getCode(), method);
+        }
     }
 
     public PaymentMethod get(String code) {

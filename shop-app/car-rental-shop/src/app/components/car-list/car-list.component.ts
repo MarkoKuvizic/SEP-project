@@ -61,6 +61,7 @@ export class CarListComponent implements OnInit {
     this.carService.getAvailableCars(this.rentalPeriod.startDate, this.rentalPeriod.endDate)
       .subscribe({
         next: (cars) => {
+          console.log(cars)
           this.cars = cars;
           this.filteredCars = [...cars];
           this.brands = [...new Set(cars.map(car => car.brand))];
@@ -123,7 +124,6 @@ export class CarListComponent implements OnInit {
   }
 
   toggleFavorite(car: Car): void {
-    // Toggle favorite logic
     this.toastr.info('Added to favorites!');
   }
 

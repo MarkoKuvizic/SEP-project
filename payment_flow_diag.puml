@@ -1,0 +1,38 @@
+@startuml
+actor User
+participant "Frontend\n(Angular)" as FE
+participant "ShopApp Backend" as SHOP
+participant "PSP App" as PSP
+participant "Payment Method\n(Card)" as CARD
+participant "Stripe\n(External)" as STRIPE
+
+== Order creation ==
+User -> FE: Select car + dates
+FE -> SHOP: POST /orders
+SHOP --> FE: orderId + redirectToPaymentUrl
+
+== Payment initialization ==
+User -> FE: Open payment page
+FE -> SHOP: GET /payment/amount/{orderId}
+SHOP --> FE: amount
+
+User -> FE: Enter card data
+FE -> STRIPE: createToken(cardData)
+STRIPE --> FE: token
+
+== Payment processing ==
+FE -> PSP: POST /pay\n(orderId, amount, token, method=card)
+PSP -> CARD: process(paymentRequest)
+CARD -> STRIPE: Charge token (simulated)
+STRIPE --> CARD: Charge OK
+CARD --> PSP: PaymentResult.SUCCESS
+
+== Callback to ShopApp ==
+PSP -> SHOP: POST /api/payment/callback/success
+SHOP -> SHOP: updateOrderStatus(PAID)
+
+== Final redirect ==
+PSP --> FE: payment result (success)
+FE -> User: Redirect to success page
+
+@enduml

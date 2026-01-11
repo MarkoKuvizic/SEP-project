@@ -2,7 +2,7 @@ export interface Car {
     id: string;
     model: string;
     brand: string;
-    year: number;
+    yearCreated: number;
     type: 'sedan' | 'suv' | 'truck' | 'convertible' | 'luxury';
     transmission: 'automatic' | 'manual';
     fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid';

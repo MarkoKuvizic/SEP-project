@@ -46,7 +46,7 @@
                   <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                       <h4 class="fw-bold mb-1">{{ item.car.brand }} {{ item.car.model }}</h4>
-                      <p class="text-muted mb-2">{{ item.car.type | titlecase }} • {{ item.car.year }}</p>
+                      <p class="text-muted mb-2">{{ item.car.type | titlecase }} • {{ item.car.yearCreated }}</p>
                       <div class="d-flex align-items-center text-warning mb-3">
                         <fa-icon [icon]="faStar" *ngFor="let _ of [1,2,3,4,5]"></fa-icon>
                         <span class="ms-2">{{ item.car.rating }} ({{ item.car.reviewCount }})</span>

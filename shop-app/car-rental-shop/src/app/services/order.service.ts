@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { Order } from '../models/order.model';
+import { Order, OrderResponse } from '../models/order.model';
 import { CartItem } from '../models/car.model';
 import { ToastrService } from 'ngx-toastr';
 
@@ -10,14 +10,14 @@ import { ToastrService } from 'ngx-toastr';
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'http://localhost:8081/api/orders'; // ShopApp backend
+  private apiUrl = 'https://localhost:8444/api/orders'; // ShopApp backend
 
   constructor(
     private http: HttpClient,
     private toastr: ToastrService
   ) {}
 
-  createOrder(cartItems: CartItem[], customerInfo: any): Observable<Order> {
+  createOrder(cartItems: CartItem[], customerInfo: any): Observable<OrderResponse> {
     const orderRequest = {
       items: cartItems,
       customer: customerInfo,
@@ -25,7 +25,7 @@ export class OrderService {
     };
     console.log(orderRequest)
 
-    return this.http.post<Order>(this.apiUrl, orderRequest).pipe(
+    return this.http.post<OrderResponse>(this.apiUrl, orderRequest).pipe(
       tap(order => {
         this.toastr.success('Order created successfully!');
       }),

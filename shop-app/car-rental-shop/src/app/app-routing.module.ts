@@ -7,10 +7,12 @@ import { CarListComponent } from './components/car-list/car-list.component';
 import { PaymentComponent } from './components/payment/payment.component';
 import { OrderConfirmationComponent } from './components/order-confirmation/order-confirmation.component';
 import { CartComponent } from './components/cart/cart.component';
+import { LoginComponent } from './components/login/login.component';
 // import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/cars', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  // { path: '', redirectTo: '/cars', pathMatch: 'full' },
   { path: 'cars', component: CarListComponent },
   // { path: 'cars/:id', component: CarDetailComponent },
   { path: 'cart', component: CartComponent },
@@ -21,7 +23,7 @@ const routes: Routes = [
   { path: 'payment/success', component: OrderConfirmationComponent },
   { path: 'payment/failed', component: PaymentComponent },
   { path: 'payment/error', component: PaymentComponent },
-  { path: '**', redirectTo: '/cars' }
+  // { path: '**', redirectTo: '/cars' },
 ];
 
 @NgModule({

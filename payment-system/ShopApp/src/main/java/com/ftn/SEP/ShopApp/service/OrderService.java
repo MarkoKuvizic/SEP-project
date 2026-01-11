@@ -1,13 +1,14 @@
 package com.ftn.SEP.ShopApp.service;
 
 import domain.*;
-import dto.CreateOrderRequest;
-import dto.CustomerInfoRequest;
-import dto.OrderItemRequest;
+import dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.ftn.SEP.ShopApp.repository.OrderRepository;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
@@ -21,6 +22,13 @@ public class OrderService {
 
     @Autowired
     CarService carService;
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    public void updateOrderStatus(String merchantOrderId, OrderStatus orderStatus) {
+//        OrderEntity order = orderRepository.findById(1L);
+    }
     public OrderEntity createOrder(CreateOrderRequest request) {
 
         List<OrderItem> items = request.getItems().stream()
@@ -65,6 +73,7 @@ public class OrderService {
         }
 
         return BigDecimal.valueOf(days)
-                .multiply(BigDecimal.valueOf(100));
+                .multiply(req.getCar().getDailyRate());
     }
+
 }

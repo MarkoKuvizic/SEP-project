@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,5 +23,12 @@ public class CarService {
         if (carOptional.isEmpty()){
             carRepository.save(car);
         }
+    }
+    public void save(Car car){
+        carRepository.save(car);
+    }
+
+    public List<Car> getAll(){
+        return carRepository.findAll().stream().toList();
     }
 }

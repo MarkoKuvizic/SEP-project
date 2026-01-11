@@ -1,4 +1,4 @@
-package paymentMethods;
+package com.ftn.SEP.PaymentApp.paymentMethods;
 
 import domain.PaymentMethod;
 import domain.PaymentMethodType;
@@ -6,6 +6,8 @@ import domain.PaymentRequest;
 import domain.PaymentResult;
 import dto.CallbackRequest;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 public class CardPaymentMethod implements PaymentMethod {
@@ -16,7 +18,7 @@ public class CardPaymentMethod implements PaymentMethod {
 
     @Override
     public String getCode() {
-        return "card";
+        return "CARD";
     }
 
     @Override
@@ -26,13 +28,18 @@ public class CardPaymentMethod implements PaymentMethod {
 
     @Override
     public PaymentResult process(PaymentRequest request) {
-        // Card payment processing logic
-        return null; // Implement
+        if (request.getToken() == null || request.getToken().isBlank()) {
+            return PaymentResult.FAILURE;
+        }
+
+        String fakeStripeChargeId = "ch_" + UUID.randomUUID();
+
+        return PaymentResult.SUCCESS;
     }
 
     @Override
     public PaymentResult handleCallback(CallbackRequest request) {
-        // Card payment callback logic
-        return null; // Implement
+
+        return PaymentResult.SUCCESS;
     }
 }

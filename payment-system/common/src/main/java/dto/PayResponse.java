@@ -1,5 +1,6 @@
 package dto;
 
+import domain.TransactionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,9 +9,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InitTransactionResponse {
-
+public class PayResponse {
     private UUID transactionId;
-    private String paymentUrl;
-    private String stripePublicKey;
+    private TransactionStatus status;
+    private String message;
 }

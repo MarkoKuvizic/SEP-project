@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaymentService } from '../../services/payment.service';
@@ -13,7 +13,7 @@ declare const Stripe: any;
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.scss']
 })
-export class PaymentComponent implements OnInit {
+export class PaymentComponent implements OnInit, AfterViewInit {
   @ViewChild('cardElement') cardElement!: ElementRef;
   
   paymentForm: FormGroup;
@@ -22,7 +22,6 @@ export class PaymentComponent implements OnInit {
   isCardValid = false;
   isLoading = false;
   
-  // Icons
   faCreditCard = faCreditCard;
   // faPaypal = faPaypal;
   // faApple = faApple;
@@ -56,30 +55,55 @@ export class PaymentComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.orderTotal = this.cartService.getCartTotal();
     this.orderId = this.route.snapshot.params['orderId'];
-    
-    // Initialize Stripe
-    this.stripe = Stripe('pk_test_your_stripe_key');
-    const elements = this.stripe.elements();
-    
-    this.card = elements.create('card', {
-      style: {
-        base: {
-          fontSize: '16px',
-          color: '#32325d',
-          '::placeholder': {
-            color: '#aab7c4'
-          }
-        }
+    this.paymentService.getPaymentAmount(this.orderId).subscribe({
+      next: (response) => {
+        this.orderTotal = response
+      },
+      error: (error) => {  
+        console.error('Failed to get payment amount', error);    
       }
-    });
-    
-    this.card.mount(this.cardElement.nativeElement);
-    this.card.on('change', (event: any) => {
-      this.isCardValid = event.complete;
-    });
+    }
+    )
   }
+  ngAfterViewInit() {
+    this.initStripe();
+  }
+
+  private initStripe() {
+    var key = ""    
+    this.paymentService.getPaymentToken(this.orderId).subscribe({
+      next: (response) => {
+        console.log("THIS IS THE STRIPE KEY:", response)
+        key = response
+        this.stripe = Stripe(key);
+        const elements = this.stripe.elements();
+    
+        this.card = elements.create('card', {
+          style: {
+            base: {
+              fontSize: '16px',
+              color: '#32325d',
+              '::placeholder': { color: '#aab7c4' }
+            }
+          }
+        });
+    
+        this.card.mount(this.cardElement.nativeElement);
+    
+        this.card.on('change', (event: any) => {
+          this.isCardValid = event.complete;
+        });
+      },
+      error: (error) => {  
+        console.error('Failed to get payment token', error);    
+      }
+    }
+    )
+
+   
+  }
+
 
   selectPaymentMethod(methodId: string): void {
     this.selectedMethod = methodId;
@@ -113,10 +137,10 @@ export class PaymentComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-
+    console.log(this.orderId)
     const paymentData = {
-      orderId: this.orderId,
-      paymentMethod: 'card',
+      transactionId: String(this.orderId),
+      paymentMethod: 'CARD',
       token: token.id,
       cardholderName: this.paymentForm.get('cardholderName')?.value
     };
@@ -135,7 +159,6 @@ export class PaymentComponent implements OnInit {
   }
 
   private async processPaypalPayment(): Promise<void> {
-    // Implement PayPal integration
     this.toastr.info('Redirecting to PayPal...');
   }
 

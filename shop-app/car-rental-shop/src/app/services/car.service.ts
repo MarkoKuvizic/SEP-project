@@ -8,7 +8,7 @@ import { Car, InsuranceOption, ExtraOption } from '../models/car.model';
   providedIn: 'root'
 })
 export class CarService {
-  private apiUrl = 'http://localhost:8080/api'; // TODO: If we need to run this on multiple PCs this is gonna have to know the actual IP 
+  private apiUrl = 'https://localhost:8444/api'; // TODO: If we need to run this on multiple PCs this is gonna have to know the actual IP 
   private carsCache: Car[] | null = null;
 
   constructor(private http: HttpClient) {}
@@ -35,13 +35,14 @@ export class CarService {
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
-    // return this.http.get<Car[]>(`${this.apiUrl}/cars/available`, { params });
+    return this.http.get<Car[]>(`${this.apiUrl}/cars`);
+
     
     const mockCar: Car = {
       id: 'car-001',
       model: 'Model S',
       brand: 'Tesla',
-      year: 2024,
+      yearCreated: 2024,
       type: 'luxury',
       transmission: 'automatic',
       fuelType: 'electric',

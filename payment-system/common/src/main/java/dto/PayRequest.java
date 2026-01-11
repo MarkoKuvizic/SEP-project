@@ -8,9 +8,9 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InitTransactionResponse {
-
+public class PayRequest {
     private UUID transactionId;
-    private String paymentUrl;
-    private String stripePublicKey;
+    private String paymentMethod;
+    private String token;
+    private String cardholderName;
 }

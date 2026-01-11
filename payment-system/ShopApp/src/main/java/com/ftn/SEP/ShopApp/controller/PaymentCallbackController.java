@@ -1,5 +1,8 @@
 package com.ftn.SEP.ShopApp.controller;
+import com.ftn.SEP.ShopApp.service.OrderService;
+import domain.OrderStatus;
 import dto.CallbackRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,10 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/payment/callback")
 public class PaymentCallbackController {
 
+    @Autowired
+    OrderService orderService;
+
     @PostMapping("/success")
     public void successCallback(@RequestBody CallbackRequest request) {
         // SUCCESS
-//        orderService.updateOrderStatus(request.getMerchantOrderId(), OrderStatus.PAID);
+        orderService.updateOrderStatus(request.getMerchantOrderId(), OrderStatus.PAID);
         System.out.println("SHOP PAYMENT SUCCESS");
     }
 

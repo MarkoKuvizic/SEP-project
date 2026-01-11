@@ -8,30 +8,13 @@ import { Order } from '../models/order.model';
   providedIn: 'root'
 })
 export class PaymentService {
-  private shopApiUrl = 'http://localhost:8080/api'; // ShopApp
-  private pspApiUrl = 'http://localhost:8081/api'; // PSP
+  private shopApiUrl = 'https://localhost:8443/api'; 
 
   constructor(private http: HttpClient) {}
 
-  initiatePayment(order: Order): Observable<PaymentResponse> {
-    const paymentRequest: PaymentRequest = {
-      amount: order.totalAmount,
-      currency: 'USD',
-      merchantOrderId: order.id,
-      successUrl: `${window.location.origin}/payment/success`,
-      failUrl: `${window.location.origin}/payment/failed`,
-      errorUrl: `${window.location.origin}/payment/error`
-    };
-
-    return this.http.post<PaymentResponse>(
-      `${this.shopApiUrl}/payments/initiate`,
-      paymentRequest
-    );
-  }
-
   getPaymentStatus(transactionId: string): Observable<PaymentResult> {
     return this.http.get<PaymentResult>(
-      `${this.shopApiUrl}/payments/${transactionId}/status`
+      `${this.shopApiUrl}/transactions/status/${transactionId}`
     );
   }
 
@@ -44,5 +27,13 @@ export class PaymentService {
 
   handlePaymentCallback(params: any): Observable<any> {
     return this.http.post(`${this.shopApiUrl}/payments/callback`, params);
+  }
+
+  getPaymentAmount(id: String): Observable<any> {
+    return this.http.get(`${this.shopApiUrl}/transactions/${id}`);
+  }
+
+  getPaymentToken(id: String): Observable<any> {
+    return this.http.get(`${this.shopApiUrl}/transactions/publicKey/${id}`);
   }
 }

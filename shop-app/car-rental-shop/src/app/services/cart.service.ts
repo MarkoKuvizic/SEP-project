@@ -24,7 +24,8 @@ export class CartService {
         car,
         rentalFrom,
         rentalTo,
-        totalPrice: this.calculateTotal(car, {startDate: rentalFrom, endDate: rentalTo, totalDays: 0}, insurance, extras),
+        totalPrice: this.calculateTotal(car, rentalFrom,
+          rentalTo, insurance, extras),
         insurance,
         extras
       };
@@ -34,7 +35,7 @@ export class CartService {
         car,
         rentalFrom,
         rentalTo,
-        totalPrice: this.calculateTotal(car,  {startDate: rentalFrom, endDate: rentalTo, totalDays: 0}, insurance, extras),
+        totalPrice: this.calculateTotal(car, rentalFrom, rentalTo, insurance, extras),
         insurance,
         extras: extras.filter(extra => extra.selected)
       };
@@ -68,8 +69,12 @@ export class CartService {
     return this.cartItems.length;
   }
 
-  private calculateTotal(car: Car, rentalPeriod: RentalPeriod, insurance: InsuranceOption, extras: ExtraOption[]): number {
-    const days = rentalPeriod.totalDays;
+  private calculateTotal(car: Car, rentalFrom: Date, rentalTo: Date, insurance: InsuranceOption, extras: ExtraOption[]): number {
+    const days =
+    Math.ceil(
+      (new Date(rentalTo).getTime() - new Date(rentalFrom).getTime()) /
+      (1000 * 60 * 60 * 24)
+    );
     const carPrice = car.dailyRate * days;
     const insurancePrice = 0;
     const extrasPrice = extras

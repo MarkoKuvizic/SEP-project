@@ -18,6 +18,8 @@ import { OrderConfirmationComponent } from './components/order-confirmation/orde
 // import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { CartComponent } from './components/cart/cart.component';
+import { LoginComponent } from './components/login/login.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 // import { FooterComponent } from './components/footer/footer.component';
 // import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 // import { AuthInterceptor } from './interceptors/auth.interceptor';
@@ -34,6 +36,7 @@ import { CartComponent } from './components/cart/cart.component';
     // UserProfileComponent,
     NavbarComponent,
     CartComponent,
+    LoginComponent,
     // FooterComponent,
     // LoadingSpinnerComponent
   ],
@@ -51,9 +54,9 @@ import { CartComponent } from './components/cart/cart.component';
       preventDuplicates: true,
       progressBar: true
     })
-  ],
+  ], 
   providers: [
-    // { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

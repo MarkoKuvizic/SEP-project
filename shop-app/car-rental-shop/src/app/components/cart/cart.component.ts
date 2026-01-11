@@ -215,9 +215,7 @@ export class CartComponent implements OnInit {
   
     this.orderService.createOrder(orderRequest["items"], {}).subscribe({
       next: res => {
-        this.router.navigate(['/checkout'], {
-          state: { orderId: res.id }
-        });
+        window.location.href = res.paymentUrl
       },
       error: () => {
         this.toastr.error('Failed to create order');
