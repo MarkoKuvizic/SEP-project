@@ -9,12 +9,13 @@ participant "Stripe\n(External)" as STRIPE
 == Order creation ==
 User -> FE: Select car + dates
 FE -> SHOP: POST /orders
+SHOP -> PSP: POST /payment
 SHOP --> FE: orderId + redirectToPaymentUrl
 
 == Payment initialization ==
 User -> FE: Open payment page
-FE -> SHOP: GET /payment/amount/{orderId}
-SHOP --> FE: amount
+FE -> PSP: GET /payment/amount/{orderId}
+PSP --> FE: amount
 
 User -> FE: Enter card data
 FE -> STRIPE: createToken(cardData)
