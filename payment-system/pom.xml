@@ -10,6 +10,7 @@
         <module>common</module>
         <module>PaymentApp</module>
         <module>ShopApp</module>
+        <module>BankApp</module>
     </modules>
 
     <properties>
