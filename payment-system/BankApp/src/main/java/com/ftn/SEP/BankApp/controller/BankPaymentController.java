@@ -53,16 +53,16 @@ public class BankPaymentController {
 
         return new InitBankResponse(
                 tx.getId(),
-                "https://localhost:4200/payment/" + tx.getId()
+                "https://localhost:4201/payment-method/" + tx.getId()
         );
     }
 
 
     @GetMapping(value = "/qr/{paymentId}", produces = MediaType.IMAGE_PNG_VALUE)
-    public byte[] generateQr(@PathVariable UUID paymentId) {
+    public byte[] generateQr(@PathVariable("paymentId") UUID paymentId) {
 
         String publicUrl = publicUrlService.getPublicUrl();
-        String qrData = publicUrl + "/bank/pay/" + paymentId;
+        String qrData = publicUrl + "/api/transactions/pay/" + paymentId;
 
         return qrGenerator.generate(qrData);
     }
@@ -84,6 +84,24 @@ public class BankPaymentController {
             return ResponseEntity.ok(new PayResponse(tx.getId(), tx.getStatus(), tx.getFailUrl()));
         }
 
+        tx.setStatus(TransactionStatus.SUCCESS);
+        repo.save(tx);
+
+        service.notifyPsp(tx);
+
+        PayResponse response = new PayResponse(tx.getId(),
+                tx.getStatus(), tx.getSuccessUrl());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/pay/{bankPaymentId}")
+    public ResponseEntity<?> pay(
+            @PathVariable("bankPaymentId") UUID bankPaymentId
+    ) {
+
+        BankTransaction tx = repo.findById(bankPaymentId)
+                .orElseThrow();
         tx.setStatus(TransactionStatus.SUCCESS);
         repo.save(tx);
 

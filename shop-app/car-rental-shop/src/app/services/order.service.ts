@@ -5,6 +5,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { Order, OrderResponse } from '../models/order.model';
 import { CartItem } from '../models/car.model';
 import { ToastrService } from 'ngx-toastr';
+import { OrderEntity } from '../models/orderEntity.model';
 
 @Injectable({
   providedIn: 'root'
@@ -48,8 +49,8 @@ export class OrderService {
     return this.http.patch<Order>(`${this.apiUrl}/${orderId}/status`, { status });
   }
 
-  getUserOrders(userId: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/user/${userId}`);
+  getUserOrders(userId: string): Observable<OrderEntity[]> {
+    return this.http.get<OrderEntity[]>(`${this.apiUrl}`);
   }
 
   cancelOrder(orderId: string): Observable<Order> {

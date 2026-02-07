@@ -144,7 +144,7 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     next: (response) => {
       this.toastr.success('Payment successful!');
       console.log(response)
-      this.router.navigateByUrl(response.message);
+      window.location.href = response.message;
       this.isLoading = false;
     },
     error: (error) => {

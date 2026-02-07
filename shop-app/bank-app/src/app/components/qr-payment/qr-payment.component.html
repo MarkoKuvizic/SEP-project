@@ -1,0 +1,142 @@
+<div class="container min-vh-100 py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="text-center mb-5">
+        <h1 class="display-6 fw-bold mb-3">
+          <fa-icon [icon]="faQrcode" class="text-primary me-2"></fa-icon>
+          QR Code Payment
+        </h1>
+        <p class="text-muted">Scan the QR code with your mobile banking app to pay</p>
+      </div>
+
+      <!-- Main Content -->
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+          <div class="row align-items-center">
+            <!-- QR Code Section -->
+            <div class="col-lg-6 text-center mb-4 mb-lg-0">
+              <div class="position-relative">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="qr-placeholder p-5 rounded-3 bg-light">
+                  <div class="loading-spinner mx-auto mb-3"></div>
+                  <p>Generating QR code...</p>
+                </div>
+
+                <!-- QR Code Image -->
+                <div *ngIf="!isLoading && isQrGenerated" class="qr-container">
+                  <img [src]="qrImageUrl" 
+                       alt="Payment QR Code" 
+                       class="img-fluid rounded-3 shadow-sm mb-3"
+                       style="max-width: 300px;">
+                  
+                  <!-- Expiry Warning -->
+                  <div *ngIf="isExpired" class="alert alert-warning">
+                    QR code expired. Please generate a new one.
+                  </div>
+                  
+                  <!-- Countdown -->
+                  <div *ngIf="!isExpired" class="countdown-badge mb-3">
+                    <fa-icon [icon]="faClock" class="me-2"></fa-icon>
+                    Expires in: <strong>{{ formatTime(countdown) }}</strong>
+                  </div>
+                </div>
+
+                <!-- QR Actions -->
+                <div *ngIf="isQrGenerated" class="mt-4">
+                  <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-outline-primary btn-sm" 
+                            (click)="downloadQRCode()"
+                            [disabled]="!qrImageUrl">
+                      <fa-icon [icon]="faDownload" class="me-2"></fa-icon>
+                      Download
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" 
+                            (click)="refreshQRCode()">
+                      <fa-icon [icon]="faRedo" class="me-2"></fa-icon>
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="col-lg-6">
+              <h4 class="fw-bold mb-4">How to Pay:</h4>
+              
+              <!-- Steps -->
+              <div class="mb-4">
+                <div *ngFor="let step of steps; let i = index" class="d-flex align-items-center mb-3">
+                  <div class="step-number me-3">{{ i + 1 }}</div>
+                  <div>
+                    <span class="h5 me-2">{{ step.icon }}</span>
+                    <span>{{ step.text }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Supported Banks -->
+              <div class="mb-4">
+                <h6 class="fw-bold mb-3">Supported Banks:</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge bg-light text-dark">Any Bank App</span>
+                  <span class="badge bg-light text-dark">UPI Apps</span>
+                  <span class="badge bg-light text-dark">Mobile Banking</span>
+                  <span class="badge bg-light text-dark">Wallet Apps</span>
+                </div>
+              </div>
+
+              <!-- Payment ID -->
+              <div class="mb-4">
+                <h6 class="fw-bold mb-2">Payment Reference:</h6>
+                <code class="bg-light p-2 rounded-2 d-block">{{ paymentId }}</code>
+                <small class="text-muted">Keep this for reference</small>
+              </div>
+
+              <!-- Check Status Button -->
+              <div class="mt-4">
+                <button class="btn btn-primary w-100 py-3" 
+                        (click)="checkPaymentStatus()"
+                        [disabled]="isLoading">
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                  <fa-icon [icon]="faCheck" class="me-2"></fa-icon>
+                  I've Paid - Check Status
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="card-footer bg-light border-0">
+          <div class="row">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <h6 class="fw-bold mb-3">Need Help?</h6>
+              <p class="text-muted small mb-0">
+                📞 Call: 1-800-DRIVE-RENT<br>
+                📧 Email: support@driverent.com
+              </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <h6 class="fw-bold mb-3">Secure Payment</h6>
+              <p class="text-muted small mb-0">
+                <fa-icon [icon]="faMobileAlt" class="text-success me-1"></fa-icon>
+                256-bit SSL encrypted<br>
+                Direct bank transfer - No card details stored
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-primary" (click)="goBack()">
+          <fa-icon [icon]="faArrowLeft" class="me-2"></fa-icon>
+          Back to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

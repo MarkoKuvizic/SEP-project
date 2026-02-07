@@ -19,7 +19,7 @@ public class CallbackService {
     public void notifySuccess(Transaction tx) {
         CallbackRequest request = new CallbackRequest(
                 tx.getId(),
-                "ShopApp",
+                String.valueOf(tx.getMerchantOrderId()),
                 TransactionStatus.SUCCESS,
                 tx.getAmount(),
                 tx.getCurrency(),
@@ -34,7 +34,7 @@ public class CallbackService {
     public void notifyFail(Transaction tx) {
         CallbackRequest request = new CallbackRequest(
                 tx.getId(),
-                "ShopApp",
+                String.valueOf(tx.getMerchantOrderId()),
                 TransactionStatus.FAILED,
                 tx.getAmount(),
                 tx.getCurrency(),

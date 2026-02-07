@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.ftn.SEP.ShopApp.service.OrderService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -30,5 +32,10 @@ public class OrderController {
         return ResponseEntity.ok(
                 new CreateOrderResponse(order.getId(), paymentUrl)
         );
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderEntity>> getEntities() {
+        return ResponseEntity.ok(orderService.getAll());
     }
 }

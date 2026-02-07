@@ -1,39 +1,81 @@
 @startuml
+title Card Payment Flow (Shop + PSP + Bank)\nwith Separate Frontends and Backends
+
 actor User
-participant "Frontend\n(Angular)" as FE
-participant "ShopApp Backend" as SHOP
-participant "PSP App" as PSP
-participant "Payment Method\n(Card)" as CARD
-participant "Stripe\n(External)" as STRIPE
 
-== Order creation ==
-User -> FE: Select car + dates
-FE -> SHOP: POST /orders
-SHOP -> PSP: POST /payment
-SHOP --> FE: orderId + redirectToPaymentUrl
+box "Shop Application" #LightBlue
+participant "Shop FE" as ShopFE
+participant "Shop BE" as ShopBE
+end box
 
-== Payment initialization ==
-User -> FE: Open payment page
-FE -> PSP: GET /payment/amount/{orderId}
-PSP --> FE: amount
+box "PSP Application" #LightGreen
+participant "PSP FE" as PSPFE
+participant "PSP BE" as PSPBE
+end box
 
-User -> FE: Enter card data
-FE -> STRIPE: createToken(cardData)
-STRIPE --> FE: token
+box "Bank Application" #LightYellow
+participant "Bank FE" as BankFE
+participant "Bank BE" as BankBE
+end box
 
-== Payment processing ==
-FE -> PSP: POST /pay\n(orderId, amount, token, method=card)
-PSP -> CARD: process(paymentRequest)
-CARD -> STRIPE: Charge token (simulated)
-STRIPE --> CARD: Charge OK
-CARD --> PSP: PaymentResult.SUCCESS
+== Checkout & Payment Initialization ==
 
-== Callback to ShopApp ==
-PSP -> SHOP: POST /api/payment/callback/success
-SHOP -> SHOP: updateOrderStatus(PAID)
+User -> ShopFE : Click "Pay with Card"
+ShopFE -> ShopBE : POST /payments/init\n(amount, currency, orderId)
+ShopBE -> PSPBE : POST /psp/init\n(amount, currency,\nsuccessUrl, failUrl, merchantOrderId)
 
-== Final redirect ==
-PSP --> FE: payment result (success)
-FE -> User: Redirect to success page
+activate PSPBE
+PSPBE -> PSPBE : Create PSP transaction (INIT)
+PSPBE -> BankBE : POST /bank/init\n(amount, currency,\npspTxId, callbackUrl)
+activate BankBE
+BankBE -> BankBE : Create Bank transaction (INIT)
+BankBE --> PSPBE : InitBankResponse\n(bankTxId, paymentUrl)
+deactivate BankBE
+
+PSPBE -> PSPBE : Store mapping\n(pspTxId ↔ bankTxId)
+PSPBE --> ShopBE : InitResponse\n(pspTxId, paymentUrl)
+deactivate PSPBE
+
+ShopBE --> ShopFE : paymentUrl
+ShopFE -> User : Redirect to PSP / Bank
+
+== User Enters Card Data ==
+
+User -> PSPFE : Open PSP payment page
+PSPFE -> BankFE : Redirect to Bank card payment page
+
+User -> BankFE : Enter card data\n(PAN, expiry, CVV)
+BankFE -> BankBE : POST /pay\n(card data, bankTxId)
+
+== Payment Processing ==
+
+activate BankBE
+BankBE -> BankBE : Validate card
+BankBE -> BankBE : Simulate authorization & capture
+BankBE -> BankBE : Update transaction status (SUCCESS / FAIL)
+deactivate BankBE
+
+== Asynchronous Callback ==
+
+BankBE -> PSPBE : POST /callback\n(bankTxId, status,\namount, signature)
+activate PSPBE
+PSPBE -> PSPBE : Validate signature
+PSPBE -> PSPBE : Update PSP transaction status
+PSPBE -> ShopBE : POST /callback\n(pspTxId, status,\namount)
+deactivate PSPBE
+
+activate ShopBE
+ShopBE -> ShopBE : Update order status
+deactivate ShopBE
+
+== User Redirect (UX Only) ==
+
+BankFE -> User : Redirect to successUrl / failUrl
+User -> ShopFE : View payment result page
+
+note right of ShopBE
+Callback is authoritative.
+Redirect is informational only.
+end note
 
 @enduml

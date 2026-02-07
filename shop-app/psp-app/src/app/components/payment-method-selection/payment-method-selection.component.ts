@@ -67,8 +67,12 @@ export class PaymentMethodSelectionComponent implements OnInit {
       alert(`${method.name} is coming soon!`);
       return;
     }
+  if (method.id == 'card'){
+    window.location.href = `https://localhost:4202/payment/${this.orderId}`;
+  }else{
+      window.location.href = `https://localhost:4202/payment/qr/${this.orderId}`;
+  }
     
-  window.location.href = `https://localhost:4202/payment/${this.orderId}`;
   }
 
   goBack(): void {

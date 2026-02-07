@@ -27,7 +27,9 @@ public class OrderService {
     RestTemplate restTemplate;
 
     public void updateOrderStatus(String merchantOrderId, OrderStatus orderStatus) {
-//        OrderEntity order = orderRepository.findById(1L);
+        OrderEntity order = orderRepository.findById(Long.valueOf(merchantOrderId)).get();
+        order.setStatus(orderStatus);
+        orderRepository.save(order);
     }
     public OrderEntity createOrder(CreateOrderRequest request) {
 
@@ -76,4 +78,7 @@ public class OrderService {
                 .multiply(req.getCar().getDailyRate());
     }
 
+    public List<OrderEntity> getAll() {
+        return orderRepository.findAll();
+    }
 }

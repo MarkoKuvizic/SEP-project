@@ -1,0 +1,127 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.card {
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.qr-placeholder {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-container {
+  position: relative;
+  
+  img {
+    border: 10px solid white;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.countdown-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #3a86ff, #8338ec);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+.step-number {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3a86ff, #8338ec);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.btn {
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  &-primary {
+    background: linear-gradient(135deg, #3a86ff, #8338ec);
+    border: none;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(58, 134, 255, 0.3);
+    }
+    
+    &:disabled {
+      background: #94a3b8;
+      opacity: 0.7;
+    }
+  }
+  
+  &-outline-primary {
+    border: 2px solid #3a86ff;
+    color: #3a86ff;
+    
+    &:hover {
+      background-color: #3a86ff;
+      color: white;
+    }
+  }
+  
+  &-outline-secondary {
+    border: 2px solid #64748b;
+    color: #64748b;
+    
+    &:hover {
+      background-color: #64748b;
+      color: white;
+    }
+  }
+}
+
+.loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3a86ff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  
+  &.bg-light {
+    border: 1px solid #e2e8f0;
+  }
+}
+
+.alert {
+  border-radius: 10px;
+  border: none;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}

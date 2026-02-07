@@ -21,6 +21,7 @@ import { CartComponent } from './components/cart/cart.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { PaymentResultComponent } from './components/payment-result/payment-result.component';
+import { MyOrdersComponent } from './components/my-orders/my-orders.component';
 // import { FooterComponent } from './components/footer/footer.component';
 // import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 // import { AuthInterceptor } from './interceptors/auth.interceptor';
@@ -39,6 +40,7 @@ import { PaymentResultComponent } from './components/payment-result/payment-resu
     CartComponent,
     LoginComponent,
     PaymentResultComponent,
+    MyOrdersComponent,
     // FooterComponent,
     // LoadingSpinnerComponent
   ],

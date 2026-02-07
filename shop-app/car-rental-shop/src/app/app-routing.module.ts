@@ -9,6 +9,7 @@ import { OrderConfirmationComponent } from './components/order-confirmation/orde
 import { CartComponent } from './components/cart/cart.component';
 import { LoginComponent } from './components/login/login.component';
 import { PaymentResultComponent } from './components/payment-result/payment-result.component';
+import { MyOrdersComponent } from './components/my-orders/my-orders.component';
 // import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 const routes: Routes = [
@@ -32,6 +33,10 @@ const routes: Routes = [
     path: 'payment-result/error', 
     component: PaymentResultComponent 
   },
+  {
+    path: 'my-orders',
+    component: MyOrdersComponent
+  }
   // { path: '**', redirectTo: '/cars' },
 ];
 
