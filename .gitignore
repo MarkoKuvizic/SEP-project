@@ -1,6 +1,10 @@
 # Compiled class file
 *.class
 
+# Keystores and sensitive config files
+*.p12
+*.properties
+
 # Log file
 *.log
 

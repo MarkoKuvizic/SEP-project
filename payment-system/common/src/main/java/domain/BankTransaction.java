@@ -1,14 +1,14 @@
 package domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,14 +17,25 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class BankTransaction {
 
-    private String paymentId;
-    private String stan;
+    @Id
+    private UUID id;
+
+    private UUID pspTransactionId;
+
     private BigDecimal amount;
     private String currency;
-    private BankTransactionStatus status;
-    private boolean used;
-    @Id
-    @GeneratedValue
-    private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;
+
+    private String callbackUrl;
+
+    private String successUrl;
+    private String failUrl;
+    private String errorUrl;
+
+
+    private LocalDateTime createdAt;
 }
+
+

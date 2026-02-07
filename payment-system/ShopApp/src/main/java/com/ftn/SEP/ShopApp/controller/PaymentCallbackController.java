@@ -22,7 +22,7 @@ public class PaymentCallbackController {
         System.out.println("SHOP PAYMENT SUCCESS");
     }
 
-    @PostMapping("/fail")
+    @PostMapping("/failure")
     public void failCallback(@RequestBody CallbackRequest request) {
         // FAILED
 //        orderService.updateOrderStatus(request.getMerchantOrderId(), OrderStatus.PAYMENT_FAILED);

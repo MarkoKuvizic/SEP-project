@@ -1,0 +1,58 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.card {
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  
+  .display-1 {
+    font-size: 6rem;
+    line-height: 1;
+  }
+}
+
+.btn {
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 600;
+  
+  &-primary {
+    background: linear-gradient(135deg, #3a86ff, #8338ec);
+    border: none;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(58, 134, 255, 0.3);
+    }
+  }
+  
+  &-outline-primary {
+    border: 2px solid #3a86ff;
+    color: #3a86ff;
+    
+    &:hover {
+      background-color: #3a86ff;
+      color: white;
+    }
+  }
+}
+
+.alert {
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 193, 7, 0.1);
+}
+
+@media print {
+  .btn {
+    display: none;
+  }
+  
+  :host {
+    background: white;
+  }
+}

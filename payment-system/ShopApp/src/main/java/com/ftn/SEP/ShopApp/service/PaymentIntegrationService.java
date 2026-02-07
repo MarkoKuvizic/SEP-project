@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class PaymentIntegrationService {
     private final RestTemplate restTemplate;
     private final String pspBaseUrl = "http://localhost:8080/api/transactions";
-    private final String callbackUrl = "http://localhost:8081/api/payment/callback";
+    private final String callbackUrl = "/payment-result";
 
     public InitTransactionResponse initPayment(BigDecimal amount, String currency, Long merchantOrderId,
             String successUrl, String failureUrl, String errorUrl) {

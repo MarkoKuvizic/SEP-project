@@ -28,7 +28,7 @@ public class CallbackService {
                 "AAA"
         );
 
-        restTemplate.postForObject(tx.getSuccessUrl(), request, Void.class);
+        restTemplate.postForObject("http://localhost:8081/api/payment/callback/success", request, Void.class);
     }
 
     public void notifyFail(Transaction tx) {
@@ -43,6 +43,6 @@ public class CallbackService {
                 "AAA"
         );
 
-        restTemplate.postForObject(tx.getFailUrl(), request, Void.class);
+        restTemplate.postForObject("http://localhost:8081/api/payment/callback/failure", request, Void.class);
     }
 }

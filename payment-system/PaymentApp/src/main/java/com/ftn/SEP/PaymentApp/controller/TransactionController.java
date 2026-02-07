@@ -5,6 +5,8 @@ import com.ftn.SEP.PaymentApp.service.TransactionService;
 import domain.PaymentRequest;
 import domain.Transaction;
 import domain.TransactionStatus;
+import dto.InitBankRequest;
+import dto.InitBankResponse;
 import dto.InitTransactionRequest;
 import dto.InitTransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,12 +26,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-    private final Map<UUID, Transaction> transactions = new ConcurrentHashMap<>();
     @Value("${stripe.public-key}")
     private String stripePublicKey;
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    String bankBaseUrl = "http://localhost:8082/api/transactions";
 
     @PostMapping("/init")
     public InitTransactionResponse initTransaction(
@@ -39,38 +47,38 @@ public class TransactionController {
                 request.getAmount(),
                 request.getCurrency(),
                 TransactionStatus.INIT,
-                request.getSuccessUrl(),
-                request.getFailUrl(),
-                request.getErrorUrl(),
-                request.getMerchantOrderId()
+                request.getMerchantOrderId(),
+                null
         );
 
         transactionService.create(tx);
 
-        UUID transactionId = tx.getId();
+        InitBankRequest bankRequest = new InitBankRequest(
+                tx.getId(),
+                request.getAmount(),
+                request.getCurrency(),
+                LocalDateTime.now(),
+                "http://localhost:8080/api/bank/callback",
+                request.getSuccessUrl(),
+                request.getFailUrl(),
+                request.getErrorUrl()
+        );
 
-        String paymentUrl = "https://localhost:4200/payment/" + transactionId;
+        InitBankResponse bankResponse =
+                restTemplate.postForObject(
+                        bankBaseUrl + "/init",
+                        bankRequest,
+                        InitBankResponse.class
+                );
 
-        return new InitTransactionResponse(transactionId, paymentUrl, stripePublicKey);
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<BigDecimal> getTransactionAmount(
-            @PathVariable("id") String id
-    ) {
+        tx.setBankTransactionId(bankResponse.getBankPaymentId());
+        transactionService.update(tx.getId(), tx);
 
-        Transaction tx = transactionService.getById(UUID.fromString(id));
-        return new ResponseEntity<>(tx.getAmount(), HttpStatus.OK);
+        return new InitTransactionResponse(
+                tx.getId(),
+                bankResponse.getPaymentUrl(), ""
+        );
     }
 
-    @GetMapping("/status/{id}")
-    public ResponseEntity<TransactionStatus> getTransactionStatus(
-            @PathVariable("id") String id
-    ) {
-        Transaction tx = transactionService.getById(UUID.fromString(id));
-        return new ResponseEntity<>(tx.getStatus(), HttpStatus.OK);
-    }
-    @GetMapping("/publicKey/{id}")
-    public ResponseEntity<String> getPublicKey(@PathVariable("id") UUID id) {
-        return new ResponseEntity<>(this.stripePublicKey, HttpStatus.OK);
-    }
+
 }

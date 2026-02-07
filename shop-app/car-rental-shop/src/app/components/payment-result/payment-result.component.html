@@ -1,0 +1,65 @@
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+  <div class="card shadow-lg border-0 rounded-4" style="max-width: 500px;">
+    <!-- Success State -->
+    <div *ngIf="status === 'success'" class="card-body text-center p-5">
+      <div class="display-1 text-success mb-4">✓</div>
+      <h1 class="h2 fw-bold mb-3">Payment Successful!</h1>
+      <p class="text-muted mb-4">
+        Your payment has been processed successfully. 
+        Your car rental is now confirmed.
+      </p>
+      
+      <div class="d-grid gap-3 mt-5">
+        <button class="btn btn-primary btn-lg" (click)="goHome()">
+          Back to Home
+        </button>
+        <button class="btn btn-outline-primary" onclick="window.print()">
+          Print Receipt
+        </button>
+      </div>
+    </div>
+
+    <!-- Failed State -->
+    <div *ngIf="status === 'failed'" class="card-body text-center p-5">
+      <div class="display-1 text-danger mb-4">✗</div>
+      <h1 class="h2 fw-bold mb-3">Payment Failed</h1>
+      <p class="text-muted mb-4">
+        We couldn't process your payment. Please try again 
+        or use a different payment method.
+      </p>
+      
+      <div class="d-grid gap-3 mt-5">
+        <button class="btn btn-primary btn-lg" (click)="goToCart()">
+          Try Again
+        </button>
+        <button class="btn btn-outline-primary" (click)="goHome()">
+          Back to Home
+        </button>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="status === 'error'" class="card-body text-center p-5">
+      <div class="display-1 text-warning mb-4">⚠</div>
+      <h1 class="h2 fw-bold mb-3">Payment Error</h1>
+      <p class="text-muted mb-4">
+        An unexpected error occurred. Please contact support 
+        if the amount was deducted from your account.
+      </p>
+      
+      <div class="mt-4">
+        <div class="alert alert-warning">
+          <strong>Support:</strong><br>
+          📞 1-800-DRIVE-RENT<br>
+          📧 support@driverent.com
+        </div>
+      </div>
+      
+      <div class="d-grid gap-3 mt-5">
+        <button class="btn btn-primary btn-lg" (click)="goHome()">
+          Back to Home
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,12 @@
 package com.ftn.SEP.PaymentApp.paymentMethods;
 
-import domain.PaymentMethod;
-import domain.PaymentMethodType;
-import domain.PaymentRequest;
-import domain.PaymentResult;
+import domain.*;
 import dto.CallbackRequest;
+import dto.CardPaymentRequest;
+import dto.InitBankRequest;
+import dto.InitBankResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
@@ -28,18 +29,16 @@ public class CardPaymentMethod implements PaymentMethod {
 
     @Override
     public PaymentResult process(PaymentRequest request) {
-        if (request.getToken() == null || request.getToken().isBlank()) {
-            return PaymentResult.FAILURE;
-        }
-
-        String fakeStripeChargeId = "ch_" + UUID.randomUUID();
-
         return PaymentResult.SUCCESS;
     }
 
+
     @Override
     public PaymentResult handleCallback(CallbackRequest request) {
+        if (request.getStatus() == TransactionStatus.SUCCESS) {
+            return PaymentResult.SUCCESS;
+        }
 
-        return PaymentResult.SUCCESS;
+        return PaymentResult.FAILURE;
     }
 }

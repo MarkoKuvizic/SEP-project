@@ -1,0 +1,63 @@
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+  <div class="card shadow-lg border-0 rounded-4" style="max-width: 600px;">
+    <!-- Header -->
+    <div class="card-header bg-white py-4 border-0">
+      <div class="text-center">
+        <h1 class="h2 fw-bold mb-2">Select Payment Method</h1>
+        <p class="text-muted mb-0">Choose how you'd like to pay</p>
+      </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-12" *ngFor="let method of paymentMethods">
+          <div 
+            class="method-card p-4 rounded-3" 
+            [class.available]="method.available"
+            [class.unavailable]="!method.available"
+            [style.borderLeftColor]="method.color"
+            (click)="selectMethod(method)">
+            
+            <div class="d-flex align-items-center">
+              <!-- Icon -->
+              <div class="method-icon me-3" [style.color]="method.color">
+                <span class="display-6">{{ method.icon }}</span>
+              </div>
+              
+              <!-- Details -->
+              <div class="flex-grow-1">
+                <h4 class="fw-bold mb-1">{{ method.name }}</h4>
+                <p class="text-muted mb-0">{{ method.description }}</p>
+              </div>
+              
+              <!-- Status -->
+              <div>
+                <span *ngIf="method.available" class="badge bg-success">Available</span>
+                <span *ngIf="!method.available" class="badge bg-secondary">Coming Soon</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="alert alert-light mt-4">
+        <div class="d-flex">
+          <div class="me-3">🔒</div>
+          <div>
+            <strong>Secure Payment</strong><br>
+            All payments are encrypted and processed securely.
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="d-flex gap-3 mt-4">
+        <button class="btn btn-outline-primary flex-grow-1" (click)="goBack()">
+          ← Back to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

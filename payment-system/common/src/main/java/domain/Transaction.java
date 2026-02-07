@@ -22,11 +22,7 @@ public class Transaction {
     private String currency;
     private TransactionStatus status;
 
-
-    private String successUrl;
-    private String failUrl;
-    private String errorUrl;
-
     private Long merchantOrderId;
+    private UUID bankTransactionId;
 
 }

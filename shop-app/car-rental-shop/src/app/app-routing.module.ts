@@ -8,6 +8,7 @@ import { PaymentComponent } from './components/payment/payment.component';
 import { OrderConfirmationComponent } from './components/order-confirmation/order-confirmation.component';
 import { CartComponent } from './components/cart/cart.component';
 import { LoginComponent } from './components/login/login.component';
+import { PaymentResultComponent } from './components/payment-result/payment-result.component';
 // import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 const routes: Routes = [
@@ -17,12 +18,20 @@ const routes: Routes = [
   // { path: 'cars/:id', component: CarDetailComponent },
   { path: 'cart', component: CartComponent },
   // { path: 'checkout', component: CheckoutComponent },
-  { path: 'payment/:orderId', component: PaymentComponent },
   { path: 'confirmation/:transactionId', component: OrderConfirmationComponent },
   // { path: 'profile', component: UserProfileComponent },
-  { path: 'payment/success', component: OrderConfirmationComponent },
-  { path: 'payment/failed', component: PaymentComponent },
-  { path: 'payment/error', component: PaymentComponent },
+    { 
+    path: 'payment-result/success', 
+    component: PaymentResultComponent 
+  },
+  { 
+    path: 'payment-result/failure', 
+    component: PaymentResultComponent 
+  },
+  { 
+    path: 'payment-result/error', 
+    component: PaymentResultComponent 
+  },
   // { path: '**', redirectTo: '/cars' },
 ];
 

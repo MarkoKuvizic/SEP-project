@@ -14,11 +14,8 @@ declare const Stripe: any;
   styleUrls: ['./payment.component.scss']
 })
 export class PaymentComponent implements OnInit, AfterViewInit {
-  @ViewChild('cardElement') cardElement!: ElementRef;
   
   paymentForm: FormGroup;
-  stripe: any;
-  card: any;
   isCardValid = false;
   isLoading = false;
   
@@ -39,6 +36,10 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   orderTotal = 120;
   orderId = '';
 
+  cardNumber = '';
+  expiry = '';
+  cvc = '';
+
   constructor(
     private fb: FormBuilder,
     private paymentService: PaymentService,
@@ -48,10 +49,14 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     private toastr: ToastrService
   ) {
     this.paymentForm = this.fb.group({
-      cardholderName: ['', [Validators.required]],
-      saveCard: [false],
-      termsAccepted: [false, [Validators.requiredTrue]]
-    });
+    cardNumber: ['', [Validators.required, Validators.minLength(13)]],
+    expiry: ['', [Validators.required]],
+    cvc: ['', [Validators.required, Validators.minLength(3)]],
+    cardholderName: ['', Validators.required],
+    saveCard: [false],
+    termsAccepted: [false, Validators.requiredTrue]
+  });
+
   }
 
   async ngOnInit() {
@@ -67,47 +72,27 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     )
   }
   ngAfterViewInit() {
-    this.initStripe();
   }
 
-  private initStripe() {
-    var key = ""    
-    this.paymentService.getPaymentToken(this.orderId).subscribe({
-      next: (response) => {
-        console.log("THIS IS THE STRIPE KEY:", response)
-        key = response
-        this.stripe = Stripe(key);
-        const elements = this.stripe.elements();
-    
-        this.card = elements.create('card', {
-          style: {
-            base: {
-              fontSize: '16px',
-              color: '#32325d',
-              '::placeholder': { color: '#aab7c4' }
-            }
-          }
-        });
-    
-        this.card.mount(this.cardElement.nativeElement);
-    
-        this.card.on('change', (event: any) => {
-          this.isCardValid = event.complete;
-        });
-      },
-      error: (error) => {  
-        console.error('Failed to get payment token', error);    
-      }
-    }
-    )
-
-   
-  }
-
+  
 
   selectPaymentMethod(methodId: string): void {
     this.selectedMethod = methodId;
   }
+  onCardNumberInput() {
+      this.cardNumber = this.cardNumber
+        .replace(/\D/g, '')
+        .replace(/(.{4})/g, '$1 ')
+        .trim();
+    }
+
+    onExpiryInput() {
+      this.expiry = this.expiry
+        .replace(/\D/g, '')
+        .replace(/^(\d{2})(\d{0,2})/, '$1 / $2')
+        .substr(0, 7);
+    }
+
 
   async processPayment(): Promise<void> {
     if (!this.paymentForm.valid) {
@@ -121,7 +106,7 @@ export class PaymentComponent implements OnInit, AfterViewInit {
       if (this.selectedMethod === 'card') {
         await this.processCardPayment();
       } else if (this.selectedMethod === 'paypal') {
-        await this.processPaypalPayment();
+        // await this.processPaypalPayment();
       }
     } catch (error) {
       this.toastr.error('Payment failed. Please try again.');
@@ -130,33 +115,48 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   }
 
   private async processCardPayment(): Promise<void> {
-    const { token, error } = await this.stripe.createToken(this.card);
-    
-    if (error) {
-      this.toastr.error(error.message);
-      this.isLoading = false;
-      return;
-    }
-    console.log(this.orderId)
-    const paymentData = {
-      transactionId: String(this.orderId),
-      paymentMethod: 'CARD',
-      token: token.id,
-      cardholderName: this.paymentForm.get('cardholderName')?.value
-    };
-
-    this.paymentService.processPayment('card', paymentData).subscribe({
-      next: (response) => {
-        this.toastr.success('Payment successful!');
-        this.cartService.clearCart();
-        this.router.navigate(['/confirmation', response.transactionId]);
-      },
-      error: (error) => {
-        this.toastr.error('Payment failed: ' + error.error.message);
-        this.isLoading = false;
-      }
-    });
+  if (this.paymentForm.invalid) {
+    this.paymentForm.markAllAsTouched();
+    return;
   }
+
+  const {
+    cardNumber,
+    expiry,
+    cvc,
+    cardholderName
+  } = this.paymentForm.value;
+
+  const paymentData = {
+    cardNumber: cardNumber.replace(/\s/g, ''),
+    expiry: expiry,
+    cvc: cvc,
+    cardholderName: cardholderName,
+
+    transactionId: String(this.orderId),
+    paymentMethod: 'CARD',
+    token: 'aaa'
+  };
+
+  console.log('CARD PAYMENT PAYLOAD', paymentData);
+
+  this.isLoading = true;
+
+  this.paymentService.processPayment('card', paymentData).subscribe({
+    next: (response) => {
+      this.toastr.success('Payment successful!');
+      this.cartService.clearCart();
+      console.log(response)
+      this.router.navigateByUrl(response.message);
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.log(error)
+      this.toastr.error('Payment failed: ' + error?.error?.message);
+      this.isLoading = false;
+    }
+  });
+}
 
   private async processPaypalPayment(): Promise<void> {
     this.toastr.info('Redirecting to PayPal...');
