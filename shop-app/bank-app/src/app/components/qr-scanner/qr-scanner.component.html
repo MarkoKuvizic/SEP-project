@@ -1,0 +1,116 @@
+<div class="scanner-container">
+  <div class="scanner-header">
+    <h1>QR Code Scanner</h1>
+    <p>Scan a payment QR code to process the transaction</p>
+  </div>
+
+  <!-- Camera Selection -->
+  <div *ngIf="availableCameras.length > 1 && !isScanning" class="camera-selector">
+    <label for="camera-select">Select Camera:</label>
+    <select 
+      id="camera-select" 
+      [(ngModel)]="selectedCameraId"
+      (change)="switchCamera(selectedCameraId)"
+      class="camera-select"
+    >
+      <option *ngFor="let camera of availableCameras" [value]="camera.deviceId">
+        {{ camera.label || 'Camera ' + (availableCameras.indexOf(camera) + 1) }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Scanner Area -->
+  <div class="scanner-area" *ngIf="!scanResult && !scannerError">
+    <div class="video-wrapper">
+      <video 
+        #videoElement 
+        class="scanner-video" 
+        [class.hidden]="!isScanning"
+        playsinline
+      ></video>
+      <canvas #canvasElement class="scanner-canvas"></canvas>
+      
+      <!-- Scanner Overlay -->
+      <div class="scanner-overlay" *ngIf="isScanning">
+        <div class="scanner-frame">
+          <div class="corner top-left"></div>
+          <div class="corner top-right"></div>
+          <div class="corner bottom-left"></div>
+          <div class="corner bottom-right"></div>
+        </div>
+        <p class="scanning-text">Align QR code within frame</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls" *ngIf="!scanResult && !scannerError">
+    <button 
+      *ngIf="!isScanning" 
+      (click)="startScanner()" 
+      class="btn btn-primary"
+    >
+      Start Scanning
+    </button>
+    
+    <button 
+      *ngIf="isScanning" 
+      (click)="stopScanner()" 
+      class="btn btn-secondary"
+    >
+      Stop Scanning
+    </button>
+    
+    <button 
+      *ngIf="isScanning && availableCameras.length > 0" 
+      (click)="toggleCamera()" 
+      class="btn btn-secondary"
+    >
+      Switch Camera
+    </button>
+  </div>
+
+  <!-- Error Display -->
+  <div *ngIf="scannerError" class="error-message">
+    <div class="error-icon">⚠️</div>
+    <h3>Scan Error</h3>
+    <p>{{ scannerError }}</p>
+    <button (click)="retryScan()" class="btn btn-primary">Try Again</button>
+  </div>
+
+  <!-- Scan Result -->
+  <div *ngIf="scanResult" class="scan-result">
+    <div class="result-icon">✅</div>
+    <h3>QR Code Scanned Successfully!</h3>
+    
+    <div class="result-details" *ngIf="parseQRData(scanResult) as parsedData">
+      <div class="detail-row">
+        <span class="detail-label">Receiver:</span>
+        <span class="detail-value">{{ parsedData.receiverName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Account:</span>
+        <span class="detail-value">{{ parsedData.receiverAccount }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Amount:</span>
+        <span class="detail-value">{{ parsedData.amount }} {{ parsedData.currency }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Purpose:</span>
+        <span class="detail-value">{{ parsedData.purpose }}</span>
+      </div>
+    </div>
+    
+    <div class="processing-spinner" *ngIf="isProcessing">
+      <div class="spinner"></div>
+      <p>Sending to server...</p>
+    </div>
+    
+    <div class="result-actions">
+      <button (click)="retryScan()" class="btn btn-primary" [disabled]="isProcessing">
+        Scan Another QR
+      </button>
+    </div>
+  </div>
+</div>

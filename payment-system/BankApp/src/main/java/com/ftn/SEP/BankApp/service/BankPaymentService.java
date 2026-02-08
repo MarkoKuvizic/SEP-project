@@ -55,6 +55,38 @@ public class BankPaymentService {
                 Void.class
         );
     }
+    public boolean isValidCvv(String cvv) {
+        if (cvv == null) return false;
+        if (!cvv.matches("\\d{3,4}")) return false;
+        return true;
+    }
+
+    public boolean isValidExpiry(String expiry) {
+        if (expiry == null) return false;
+
+        try {
+            String[] parts = expiry.split("/");
+            if (parts.length != 2) return false;
+
+            int month = Integer.parseInt(parts[0]);
+            int year = Integer.parseInt(parts[1]);
+
+            if (month < 1 || month > 12) return false;
+
+            if (year < 100) {
+                year += 2000;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime expiryDate = LocalDateTime.of(year, month, 1, 0, 0)
+                    .plusMonths(1)
+                    .minusSeconds(1);
+
+            return expiryDate.isAfter(now);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 
     public BankTransaction getById(UUID uuid) {

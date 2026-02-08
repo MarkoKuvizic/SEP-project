@@ -1,9 +1,7 @@
 package com.ftn.SEP.BankApp.controller;
 
 import com.ftn.SEP.BankApp.repository.BankTransactionRepository;
-import com.ftn.SEP.BankApp.service.BankPaymentService;
-import com.ftn.SEP.BankApp.service.PublicUrlService;
-import com.ftn.SEP.BankApp.service.QrGenerator;
+import com.ftn.SEP.BankApp.service.*;
 import domain.BankTransaction;
 import domain.Transaction;
 import domain.TransactionStatus;
@@ -34,6 +32,9 @@ public class BankPaymentController {
     @Autowired
     QrGenerator qrGenerator;
 
+    @Autowired
+    IpsQrPayloadBuilder builder;
+
     @PostMapping("/init")
     public InitBankResponse init(@RequestBody InitBankRequest req) {
 
@@ -62,9 +63,10 @@ public class BankPaymentController {
     public byte[] generateQr(@PathVariable("paymentId") UUID paymentId) {
 
         String publicUrl = publicUrlService.getPublicUrl();
-        String qrData = publicUrl + "/api/transactions/pay/" + paymentId;
+        BankTransaction tx = repo.findById(paymentId).get();
+        String qrData = builder.build(String.valueOf(tx.getId()), "shopApp", tx.getAmount(), "purpose");
 
-        return qrGenerator.generate(qrData);
+        return qrGenerator.generateIpsQr(qrData);
     }
 
 
@@ -77,7 +79,7 @@ public class BankPaymentController {
         BankTransaction tx = repo.findById(bankPaymentId)
                 .orElseThrow();
 
-        if (!service.isValidLuhn(cardData.getCardNumber())) {
+        if (!service.isValidLuhn(cardData.getCardNumber()) || !service.isValidCvv(cardData.getCvc()) || !service.isValidExpiry(cardData.getExpiry())) {
             tx.setStatus(TransactionStatus.FAILED);
             repo.save(tx);
             service.notifyPsp(tx);
@@ -95,23 +97,39 @@ public class BankPaymentController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/pay/{bankPaymentId}")
-    public ResponseEntity<?> pay(
-            @PathVariable("bankPaymentId") UUID bankPaymentId
-    ) {
+    @PostMapping("/pay/qr")
+    public ResponseEntity<PayResponse> payQr(@RequestBody QrPaymentRequest request) {
 
-        BankTransaction tx = repo.findById(bankPaymentId)
-                .orElseThrow();
+        BankTransaction tx = repo.findById(UUID.fromString(request.getReceiverAccount()))
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        if (tx.getStatus() != TransactionStatus.INIT) {
+            throw new IllegalStateException("Transaction already processed");
+        }
+
+        if (tx.getAmount().compareTo(request.getAmount()) != 0) {
+            throw new IllegalArgumentException("Amount mismatch");
+        }
+
+        if (!tx.getCurrency().equals(request.getCurrency())) {
+            throw new IllegalArgumentException("Currency mismatch");
+        }
+
         tx.setStatus(TransactionStatus.SUCCESS);
+
         repo.save(tx);
 
         service.notifyPsp(tx);
 
-        PayResponse response = new PayResponse(tx.getId(),
-                tx.getStatus(), tx.getSuccessUrl());
+        PayResponse response = new PayResponse(
+                tx.getId(),
+                tx.getStatus(),
+                tx.getSuccessUrl()
+        );
 
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BigDecimal> getTransactionAmount(

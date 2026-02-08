@@ -11,12 +11,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PaymentComponent } from './components/payment/payment.component';
 import { QrPaymentComponent } from './components/qr-payment/qr-payment.component';
+import { QrScannerComponent } from './components/qr-scanner/qr-scanner.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PaymentComponent,
-    QrPaymentComponent
+    QrPaymentComponent,
+    QrScannerComponent
   ],
   imports: [
     BrowserModule,

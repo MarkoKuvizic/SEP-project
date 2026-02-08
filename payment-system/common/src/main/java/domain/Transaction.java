@@ -1,8 +1,6 @@
 package domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -22,6 +20,8 @@ public class Transaction {
     private String currency;
     private TransactionStatus status;
 
+
+    @Column(unique = true, nullable = false)
     private Long merchantOrderId;
     private UUID bankTransactionId;
 

@@ -10,21 +10,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class QrGenerator {
 
-    public byte[] generate(String data) {
+    public byte[] generateIpsQr(String ipsPayload) {
         try {
-            int width = 300;
-            int height = 300;
+            int size = 300;
 
             BitMatrix bitMatrix = new MultiFormatWriter()
-                    .encode(data, BarcodeFormat.QR_CODE, width, height);
+                    .encode(ipsPayload, BarcodeFormat.QR_CODE, size, size);
 
-            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
 
-            return pngOutputStream.toByteArray();
+            return outputStream.toByteArray();
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to generate QR code", e);
+            throw new IllegalStateException("Failed to generate IPS QR code", e);
         }
     }
 }
+
 

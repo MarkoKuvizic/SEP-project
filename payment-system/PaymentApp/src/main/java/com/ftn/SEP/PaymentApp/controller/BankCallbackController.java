@@ -26,7 +26,9 @@ public class BankCallbackController {
         if (tx == null) {
             return ResponseEntity.badRequest().build();
         }
-
+        if (!tx.getStatus().equals(TransactionStatus.INIT)){
+            return ResponseEntity.ok().build();
+        }
         tx.setStatus(request.getStatus());
         transactionService.update(tx.getId(), tx);
 

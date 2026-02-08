@@ -52,7 +52,7 @@ public class TransactionController {
         );
 
         transactionService.create(tx);
-
+        System.out.println(tx.getId());
         InitBankRequest bankRequest = new InitBankRequest(
                 tx.getId(),
                 request.getAmount(),
@@ -79,6 +79,7 @@ public class TransactionController {
                 bankResponse.getPaymentUrl(), ""
         );
     }
+
 
 
 }

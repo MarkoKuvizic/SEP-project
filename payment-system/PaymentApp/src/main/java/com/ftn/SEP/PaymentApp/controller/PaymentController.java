@@ -8,11 +8,12 @@ import dto.CallbackRequest;
 import dto.PayRequest;
 import dto.PayResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -22,6 +23,9 @@ public class PaymentController {
     private final PaymentMethodRegistry paymentMethodRegistry;
     private final TransactionService transactionService;
     private final CallbackService callbackService;
+
+    @Autowired
+    private final RestTemplate restTemplate;
 
     @PostMapping("/process")
     public ResponseEntity<PayResponse> pay(@RequestBody PayRequest request) {
@@ -65,5 +69,22 @@ public class PaymentController {
         return ResponseEntity.ok(
                 new PayResponse(tx.getId(), tx.getStatus(), "")
         );
+    }
+
+
+    @GetMapping("/status/{id}")
+    public ResponseEntity<String> checkStatus(@PathVariable("id") UUID id) {
+        Transaction tx = transactionService.getById(id);
+
+        TransactionStatus status = restTemplate.getForObject("http://localhost:8082/api/transactions/status/" + tx.getBankTransactionId(), TransactionStatus.class);
+
+        if (status == TransactionStatus.SUCCESS) {
+            tx.setStatus(TransactionStatus.SUCCESS);
+            callbackService.notifySuccess(tx);
+        } else {
+            tx.setStatus(TransactionStatus.FAILED);
+            callbackService.notifyFail(tx);
+        }
+        return ResponseEntity.ok("OK");
     }
 }

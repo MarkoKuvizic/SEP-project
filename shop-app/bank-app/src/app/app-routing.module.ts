@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PaymentComponent } from './components/payment/payment.component';
 import { QrPaymentComponent } from './components/qr-payment/qr-payment.component';
+import { QrScannerComponent } from './components/qr-scanner/qr-scanner.component';
 
 const routes: Routes = [
     { path: 'payment/:orderId', component: PaymentComponent },
@@ -9,6 +10,10 @@ const routes: Routes = [
     path: 'payment/qr/:paymentId', 
     component: QrPaymentComponent 
     },
+    {
+      path: 'qr-scanner',
+      component: QrScannerComponent
+    }
 ];
 
 @NgModule({
