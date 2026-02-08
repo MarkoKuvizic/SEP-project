@@ -29,10 +29,11 @@ public class PaymentController {
 
     @PostMapping("/process")
     public ResponseEntity<PayResponse> pay(@RequestBody PayRequest request) {
-
+        System.out.println("PAYMENT PROCESSING");
         Transaction tx = transactionService.getById(request.getTransactionId());
 
         if (tx.getStatus() != TransactionStatus.INIT) {
+            System.out.println("PAYMENT ALREADY PROCESSED");
             return ResponseEntity.badRequest().body(
                     new PayResponse(tx.getId(), tx.getStatus(), "Transaction not payable")
             );
@@ -41,6 +42,7 @@ public class PaymentController {
         PaymentMethod method = paymentMethodRegistry.get(request.getPaymentMethod());
 
         if (method == null) {
+            System.out.println("UNSUPPORTED METHOD");
             return ResponseEntity.badRequest().body(
                     new PayResponse(tx.getId(), TransactionStatus.FAILED, "Unsupported payment method")
             );
@@ -56,10 +58,12 @@ public class PaymentController {
 
         PaymentResult result = method.process(paymentRequest);
         if (result == PaymentResult.SUCCESS){
+            System.out.println("PAYMENT PROCESSING SUCCESS");
             tx.setStatus(TransactionStatus.SUCCESS);
             callbackService.notifySuccess(tx);
         }
         else {
+            System.out.println("PAYMENT PROCESSING FAILURE");
             tx.setStatus(TransactionStatus.FAILED);
             callbackService.notifyFail(tx);
         }

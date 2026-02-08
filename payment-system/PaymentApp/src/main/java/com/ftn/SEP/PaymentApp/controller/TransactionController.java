@@ -48,6 +48,7 @@ public class TransactionController {
     public InitTransactionResponse initTransaction(
             @RequestBody InitTransactionRequest request
     ) {
+        System.out.println("TRANSACTION INITIALIZATION");
 
         Transaction tx = new Transaction(
                 null,

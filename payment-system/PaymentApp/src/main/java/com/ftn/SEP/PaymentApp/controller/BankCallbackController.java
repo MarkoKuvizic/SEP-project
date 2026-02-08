@@ -21,20 +21,24 @@ public class BankCallbackController {
     public ResponseEntity<Void> handleBankCallback(
             @RequestBody CallbackRequest request
     ) {
+        System.out.println("BANK CALLBACK RECEIVED");
         Transaction tx = transactionService.getById(request.getTransactionId());
 
         if (tx == null) {
             return ResponseEntity.badRequest().build();
         }
         if (!tx.getStatus().equals(TransactionStatus.INIT)){
+            System.out.println("BANK CALLBACK ADDRESSED ALREADY PAID TRANSACTION");
             return ResponseEntity.ok().build();
         }
         tx.setStatus(request.getStatus());
         transactionService.update(tx.getId(), tx);
 
         if (request.getStatus() == TransactionStatus.SUCCESS) {
+            System.out.println("BANK CALLBACK SUCCESS");
             callbackService.notifySuccess(tx);
         } else {
+            System.out.println("BANK CALLBACK FAILURE");
             callbackService.notifyFail(tx);
         }
 

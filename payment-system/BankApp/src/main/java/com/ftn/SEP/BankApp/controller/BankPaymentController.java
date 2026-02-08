@@ -47,11 +47,14 @@ public class BankPaymentController {
                                  @RequestHeader("X-SIGNATURE") String signature,
                                  @RequestBody InitBankRequest req) {
 
+        System.out.println("INIT REQUEST");
         if (!isPspValid(pspId, signature, req)) {
+            System.out.println("INIT REQUEST FAILED, INVALID PSP SIGNATURE RECEIVED");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid PSP");
         }
 
         if (!isMerchantValid(req.getMerchantId(), pspId)) {
+            System.out.println("INIT REQUEST FAILED, INVALID MERCHANT");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid merchant");
         }
 
@@ -68,6 +71,8 @@ public class BankPaymentController {
         tx.setErrorUrl(req.getErrorUrl());
 
         repo.save(tx);
+
+        System.out.println("INIT REQUEST SUCCESSFUL");
 
         return new InitBankResponse(
                 tx.getId(),
@@ -94,6 +99,8 @@ public class BankPaymentController {
 
     @GetMapping(value = "/qr/{paymentId}", produces = MediaType.IMAGE_PNG_VALUE)
     public byte[] generateQr(@PathVariable("paymentId") UUID paymentId) {
+        System.out.println("QR GENERATION");
+
 
         String publicUrl = publicUrlService.getPublicUrl();
         BankTransaction tx = repo.findById(paymentId).get();
@@ -108,6 +115,7 @@ public class BankPaymentController {
             @PathVariable("bankPaymentId") UUID bankPaymentId,
             @RequestBody CardPaymentRequest cardData
     ) {
+        System.out.println("PAYMENT ATTEMPT");
 
         BankTransaction tx = repo.findById(bankPaymentId)
                 .orElseThrow();
@@ -116,8 +124,16 @@ public class BankPaymentController {
             tx.setStatus(TransactionStatus.FAILED);
             repo.save(tx);
             service.notifyPsp(tx);
+            System.out.println("PAYMENT ATTEMPT FAILED LUHN CHECK");
             return ResponseEntity.ok(new PayResponse(tx.getId(), tx.getStatus(), tx.getFailUrl()));
         }
+        if (tx.getStatus() != TransactionStatus.INIT) {
+            System.out.println("PAYMENT ATTEMPT FAILED TRANSACTION ALREADY PROCESSED");
+            throw new IllegalStateException("Transaction already processed");
+        }
+
+
+        System.out.println("PAYMENT ATTEMPT SUCCESSFUL");
 
         tx.setStatus(TransactionStatus.SUCCESS);
         repo.save(tx);
@@ -132,19 +148,22 @@ public class BankPaymentController {
 
     @PostMapping("/pay/qr")
     public ResponseEntity<PayResponse> payQr(@RequestBody QrPaymentRequest request) {
-
+        System.out.println("INIT REQUEST SUCCESSFUL");
         BankTransaction tx = repo.findById(UUID.fromString(request.getReceiverAccount()))
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
-
+        System.out.println("PAYMENT ATTEMPT QR");
         if (tx.getStatus() != TransactionStatus.INIT) {
+            System.out.println("PAYMENT ATTEMPT FAILED TRANSACTION ALREADY PROCESSED");
             throw new IllegalStateException("Transaction already processed");
         }
 
         if (tx.getAmount().compareTo(request.getAmount()) != 0) {
+            System.out.println("PAYMENT ATTEMPT FAILED AMOUNT MISMATCH");
             throw new IllegalArgumentException("Amount mismatch");
         }
 
         if (!tx.getCurrency().equals(request.getCurrency())) {
+            System.out.println("PAYMENT ATTEMPT FAILED CURRENCY MISMATCH");
             throw new IllegalArgumentException("Currency mismatch");
         }
 
