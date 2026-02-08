@@ -27,4 +27,6 @@ public class InitBankRequest {
     private String failUrl;
     private String errorUrl;
 
+
+    private String merchantId;
 }

@@ -1,6 +1,7 @@
 package com.ftn.SEP.PaymentApp.controller;
 
 
+import com.ftn.SEP.PaymentApp.service.HmacUtil;
 import com.ftn.SEP.PaymentApp.service.TransactionService;
 import domain.PaymentRequest;
 import domain.Transaction;
@@ -11,10 +12,13 @@ import dto.InitTransactionRequest;
 import dto.InitTransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +38,9 @@ public class TransactionController {
 
     @Autowired
     RestTemplate restTemplate;
+
+    @Value("${psp.hmac.secret}")
+    String hmacSecret;
 
     String bankBaseUrl = "http://localhost:8082/api/transactions";
 
@@ -61,13 +68,26 @@ public class TransactionController {
                 "http://localhost:8080/api/bank/callback",
                 request.getSuccessUrl(),
                 request.getFailUrl(),
-                request.getErrorUrl()
+                request.getErrorUrl(),
+                request.getMerchantId()
         );
+        ObjectMapper mapper = new ObjectMapper();
+        String payload = mapper.writeValueAsString(bankRequest);
+        String signature = HmacUtil.sign(
+                payload,
+                hmacSecret
+        );
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-PSP-ID", "psp-1");
+        headers.set("X-SIGNATURE", signature);
+
+        HttpEntity<InitBankRequest> entity =
+                new HttpEntity<>(bankRequest, headers);
 
         InitBankResponse bankResponse =
                 restTemplate.postForObject(
                         bankBaseUrl + "/init",
-                        bankRequest,
+                        entity,
                         InitBankResponse.class
                 );
 
@@ -79,7 +99,5 @@ public class TransactionController {
                 bankResponse.getPaymentUrl(), ""
         );
     }
-
-
 
 }

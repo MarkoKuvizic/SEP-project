@@ -20,7 +20,7 @@ public class PaymentIntegrationService {
     public InitTransactionResponse initPayment(BigDecimal amount, String currency, Long merchantOrderId,
             String successUrl, String failureUrl, String errorUrl) {
         InitTransactionRequest request = new InitTransactionRequest(
-                amount, currency, merchantOrderId, successUrl, failureUrl, errorUrl
+                amount, currency, merchantOrderId, successUrl, failureUrl, errorUrl, "ShopApp"
         );
 
         return restTemplate.postForObject(pspBaseUrl + "/init",

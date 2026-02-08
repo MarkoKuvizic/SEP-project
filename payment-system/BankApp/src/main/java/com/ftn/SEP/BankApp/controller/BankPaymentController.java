@@ -8,13 +8,17 @@ import domain.TransactionStatus;
 import dto.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -35,8 +39,21 @@ public class BankPaymentController {
     @Autowired
     IpsQrPayloadBuilder builder;
 
+    @Value("${psp.hmac.secret}")
+    String hmacSecret;
+
     @PostMapping("/init")
-    public InitBankResponse init(@RequestBody InitBankRequest req) {
+    public InitBankResponse init(@RequestHeader("X-PSP-ID") String pspId,
+                                 @RequestHeader("X-SIGNATURE") String signature,
+                                 @RequestBody InitBankRequest req) {
+
+        if (!isPspValid(pspId, signature, req)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid PSP");
+        }
+
+        if (!isMerchantValid(req.getMerchantId(), pspId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid merchant");
+        }
 
         BankTransaction tx = new BankTransaction();
         tx.setId(UUID.randomUUID());
@@ -56,6 +73,22 @@ public class BankPaymentController {
                 tx.getId(),
                 "https://localhost:4201/payment-method/" + tx.getId()
         );
+    }
+
+    private boolean isPspValid(String pspId, String signature, InitBankRequest req) {
+        ObjectMapper mapper = new ObjectMapper();
+        String payload = mapper.writeValueAsString(req);
+
+        String expected = HmacUtil.sign(
+                payload,
+                hmacSecret
+        );
+
+        return signature.equals(expected);
+    }
+
+    private boolean isMerchantValid(String merchantId, String pspId) {
+        return Objects.equals(merchantId, "ShopApp");
     }
 
 
